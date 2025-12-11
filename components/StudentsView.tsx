@@ -1,15 +1,45 @@
 import React, { useState } from 'react';
 import { MOCK_STUDENTS } from '../constants';
-import { Search } from 'lucide-react';
+import { Search, Edit2, X, Save } from 'lucide-react';
+import { User, Student } from '../types';
 
-export const StudentsView: React.FC = () => {
+interface StudentsViewProps {
+  user: User;
+}
+
+export const StudentsView: React.FC<StudentsViewProps> = ({ user }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [students, setStudents] = useState<Student[]>(MOCK_STUDENTS);
+  
+  // States para edição de nota
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [newScore, setNewScore] = useState<string>('');
 
-  const filteredStudents = MOCK_STUDENTS.filter(student =>
+  const filteredStudents = students.filter(student =>
     student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.grade.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.city.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const startEditing = (student: Student) => {
+    setEditingStudent(student);
+    setNewScore(student.performanceScore.toString());
+  };
+
+  const saveGrade = () => {
+    if (editingStudent) {
+      const updatedStudents = students.map(s => {
+        if (s.id === editingStudent.id) {
+          return { ...s, performanceScore: parseInt(newScore) || 0 };
+        }
+        return s;
+      });
+      setStudents(updatedStudents);
+      setEditingStudent(null);
+    }
+  };
+
+  const isProfessor = user.role === 'PROFESSOR';
 
   return (
     <div className="space-y-6">
@@ -38,6 +68,7 @@ export const StudentsView: React.FC = () => {
                 <th className="p-4 font-semibold text-gray-600">Turma</th>
                 <th className="p-4 font-semibold text-gray-600">Cidade</th>
                 <th className="p-4 font-semibold text-gray-600">Desempenho</th>
+                {isProfessor && <th className="p-4 font-semibold text-gray-600 text-center">Ações</th>}
               </tr>
             </thead>
             <tbody>
@@ -63,6 +94,17 @@ export const StudentsView: React.FC = () => {
                       <span className="text-sm font-medium text-gray-700">{student.performanceScore}%</span>
                     </div>
                   </td>
+                  {isProfessor && (
+                    <td className="p-4 text-center">
+                      <button 
+                        onClick={() => startEditing(student)}
+                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        title="Lançar Nota"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -74,6 +116,53 @@ export const StudentsView: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de Lançamento de Notas */}
+      {editingStudent && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl w-full max-w-sm overflow-hidden shadow-2xl p-6">
+             <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold text-gray-800">Lançar Nota</h3>
+                <button onClick={() => setEditingStudent(null)} className="text-gray-400 hover:text-gray-600">
+                  <X className="w-5 h-5" />
+                </button>
+             </div>
+             
+             <div className="mb-4">
+               <p className="text-sm text-gray-500 mb-1">Aluno</p>
+               <p className="font-medium text-gray-800">{editingStudent.name}</p>
+             </div>
+
+             <div className="mb-6">
+               <label className="block text-sm font-medium text-gray-700 mb-1">Nota Final (0-100)</label>
+               <input 
+                 type="number" 
+                 min="0"
+                 max="100"
+                 value={newScore}
+                 onChange={(e) => setNewScore(e.target.value)}
+                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-lg"
+               />
+             </div>
+
+             <div className="flex gap-3">
+               <button 
+                 onClick={() => setEditingStudent(null)}
+                 className="flex-1 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium"
+               >
+                 Cancelar
+               </button>
+               <button 
+                 onClick={saveGrade}
+                 className="flex-1 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 flex items-center justify-center gap-2"
+               >
+                 <Save className="w-4 h-4" />
+                 Salvar
+               </button>
+             </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

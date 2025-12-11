@@ -47,7 +47,8 @@ const MENU_ITEMS: MenuItem[] = [
     page: '/reports', 
     icon: FileText, 
     label: 'Relatórios', 
-    allowedRoles: ['DIRETOR', 'PROFESSOR'] 
+    // Atualizado para permitir ALUNO (para imprimir boletim)
+    allowedRoles: ['DIRETOR', 'PROFESSOR', 'ALUNO'] 
   },
 ];
 
@@ -191,7 +192,7 @@ export default function App() {
   }
 
   const renderPage = () => {
-    // Verificação de Segurança de Rota (Impede acesso manual se não tiver permissão)
+    // Verificação de Segurança de Rota
     const currentMenuItem = MENU_ITEMS.find(item => item.page === currentPage);
     if (currentMenuItem && !currentMenuItem.allowedRoles.includes(user.role)) {
        return (
@@ -215,13 +216,13 @@ export default function App() {
       case '/':
         return <Dashboard />;
       case '/students':
-        return <StudentsView />;
+        return <StudentsView user={user} />;
       case '/teachers':
-        return <TeachersView />;
+        return <TeachersView user={user} />;
       case '/calendar':
         return <CalendarView />;
       case '/reports':
-        return <ReportsView />;
+        return <ReportsView user={user} />;
       default:
         return <Dashboard />;
     }
