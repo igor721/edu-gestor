@@ -1,46 +1,57 @@
-import { useMemo } from 'react';
-import { MOCK_STUDENTS, MOCK_TEACHERS } from '../../constants';
-import { Gender } from '../types';
+import { useState, useEffect, useMemo } from 'react';
+import { apiClient } from '../services/apiClient';
 
 export const useDashboard = (user) => {
-  
+  const [data, setData] = useState(null); // Estado para os dados da API
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // 1. Busca os dados do Dashboard baseado no cargo (role)
+  const fetchDashboardData = async () => {
+    if (!user?.id || !user?.role) return;
+
+    try {
+      setLoading(true);
+      // O endpoint muda conforme o perfil para buscar dados específicos
+      const response = await apiClient(`/dashboard/${user.role.toLowerCase()}/${user.id}`);
+      setData(response);
+    } catch (err) {
+      console.error("Erro ao carregar dashboard:", err);
+      setError("Erro ao carregar indicadores.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [user?.id, user?.role]);
+
+  // 2. Processamento Seguro dos Dados (Valores Padrão)
+  // Usamos useMemo para garantir que se o 'data' for null, 
+  // o Front receba objetos vazios em vez de quebrar.
   const stats = useMemo(() => {
-    // --- LÓGICA DO ALUNO ---
-    const student = MOCK_STUDENTS.find(s => s.email === user.email) || MOCK_STUDENTS[0];
-    const limiteFaltas = 50;
-    const faltasAtuais = Math.round((100 - student.attendance) * 0.5);
-    const faltasRestantes = Math.max(0, limiteFaltas - faltasAtuais);
-    const nivelRiscoFalta = student.attendance < 78 ? 'alto' : student.attendance < 85 ? 'medio' : 'baixo';
-
-
-    
-    // --- LÓGICA DO PROFESSOR (Turmas específicas) ---
-    const myClasses = ['1º Ano A', '1º Ano B'];
-    const myStudents = MOCK_STUDENTS.filter(s => myClasses.includes(s.grade));
-    
-    const performanceData = myClasses.map(turma => ({
-      turma,
-      media: Math.round(myStudents.filter(s => s.grade === turma).reduce((acc, s) => acc + s.performanceScore, 0) / (myStudents.filter(s => s.grade === turma).length || 1)),
-      meta: 70 
-    }));
-
-    const genderData = [
-      { name: 'Meninos', value: myStudents.filter(s => s.gender === Gender.Male).length },
-      { name: 'Meninas', value: myStudents.filter(s => s.gender === Gender.Female).length },
-    ];
-
     return {
-      // Retorno do Aluno
-      student,
-      faltasAtuais,
-      faltasRestantes,
-      nivelRiscoFalta,
+      // --- DADOS DO ALUNO ---
+      faltasAtuais: data?.faltasAtuais || 0,
+      faltasRestantes: data?.faltasRestantes || 0,
+      nivelRiscoFalta: data?.nivelRiscoFalta || 'baixo',
       
-      // Retorno do Professor
-      performanceData,
-      genderData
+      // --- DADOS DO PROFESSOR ---
+      performanceData: data?.performanceData || [], // Gráfico de barras (Médias)
+      genderData: data?.genderData || [],           // Gráfico de pizza (Gênero)
+      
+      // --- DADOS DO DIRETOR ---
+      totalAlunosEscola: data?.totalAlunosEscola || 0,
+      alunosRiscoEvasao: data?.alunosRiscoEvasao || 0,
+      totalProfessoresEscola: data?.totalProfessoresEscola || 0
     };
-  }, [user]);
+  }, [data]);
 
-  return stats;
+  return {
+    stats,
+    loading,
+    error,
+    refresh: fetchDashboardData
+  };
 };

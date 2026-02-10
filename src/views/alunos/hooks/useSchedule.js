@@ -1,30 +1,25 @@
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
+import { apiClient } from '../../../services/apiClient';
 
-export const useSchedule = () => {
+export const useSchedule = (user) => {
+  const [gradeHoraria, setGradeHoraria] = useState([]);
+  const [loading, setLoading] = useState(false);
   const dias = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
-  const horarios = ['07:00', '07:50', '08:40', '09:50', '10:40'];
-  
-  const disciplinasExemplo = [
-    'Português', 'Matemática', 'História', 'Geografia', 'Ciências', 
-    'Educação Física', 'Inglês', 'Artes', 'Física', 'Química'
-  ];
 
-  // Gera a grade de horários fixa para evitar mudanças ao re-renderizar
-  const gradeHoraria = useMemo(() => {
-    return horarios.map(hora => {
-      const aulasDoDia = {};
-      dias.forEach(dia => {
-        aulasDoDia[dia] = {
-          materia: disciplinasExemplo[Math.floor(Math.random() * disciplinasExemplo.length)],
-          sala: 'Sala 05'
-        };
-      });
-      return { hora, aulasDoDia };
-    });
-  }, []);
-
-  return {
-    dias,
-    gradeHoraria
+  const fetchSchedule = async () => {
+    if (!user?.turma?.id) return;
+    try {
+      setLoading(true);
+      const data = await apiClient(`/horarios/turma/${user.turma.id}`);
+      setGradeHoraria(data || []);
+    } catch (err) {
+      console.error("Erro ao buscar horários", err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => { fetchSchedule(); }, [user?.turma?.id]);
+
+  return { dias, gradeHoraria, loading };
 };

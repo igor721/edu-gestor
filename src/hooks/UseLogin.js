@@ -1,41 +1,38 @@
 import { useState } from 'react';
-import { MOCK_USERS } from '../../constants';
 
 export const useLogin = (onLogin) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    // Simulação de delay de rede (opcional, bom para testar o loading)
-    // await new Promise(resolve => setTimeout(resolve, 500));
-
-    const user = MOCK_USERS.find(u => u.email === email && u.password === password);
-
-    if (user) {
-      const { password: _, ...safeUser } = user;
-      // Salva o token fictício se necessário
-      localStorage.setItem('auth_token', 'token-fake-123');
-      onLogin(safeUser);
-    } else {
-      setError('Credenciais inválidas. Tente novamente.');
-    }
+    // ESSA LINHA É A MAIS IMPORTANTE: Impede o "?" na URL e o refresh
+    e.preventDefault(); 
     
-    setLoading(false);
+    setLoading(true);
+    setError(null);
+
+    // Simulação de delay para teste
+    setTimeout(() => {
+      if (email === 'teste@teste.com' && password === '123') {
+        onLogin({
+          id: 1,
+          name: 'Luan Gabriel',
+          role: 'ALUNO', 
+          email: email
+        });
+      } else {
+        setError("Email ou senha incorretos.");
+      }
+      setLoading(false);
+    }, 800);
   };
 
   return {
-    email,
-    setEmail,
-    password,
-    setPassword,
-    error,
-    loading,
+    email, setEmail,
+    password, setPassword,
+    error, loading,
     handleLogin
   };
 };

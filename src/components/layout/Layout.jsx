@@ -16,20 +16,12 @@ export const Layout = ({ children, user, onLogout }) => {
       )}
 
       {/* Sidebar */}
-      <Sidebar 
-        user={user} 
-        onLogout={onLogout}
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-      />
+      <Sidebar user={user} onLogout={onLogout} isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}/>
 
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Header Mobile */}
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 lg:hidden">
-          <button 
-            onClick={() => setIsMobileMenuOpen(true)} 
-            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-          >
+          <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
             <Menu className="w-6 h-6" />
           </button>
           <span className="font-semibold text-gray-700">EduManager Pro</span>

@@ -7,7 +7,6 @@ export const MENU_ITEMS = [
   { page: '/grades', icon: FileText, label: 'Minhas Notas', allowedRoles: ['ALUNO'] },
   { page: '/attendance', icon: CheckCircle, label: 'Frequência', allowedRoles: ['ALUNO'] },
   { page: '/schedule', icon: Clock, label: 'Horário de Aula', allowedRoles: ['ALUNO'] },
-  // { page: '/documents', icon: FileDown, label: 'Documentos/TCC', allowedRoles: ['ALUNO'] },
   
   // Rotas do Professor
   { page: '/diaries', icon: BookOpen, label: 'Meus Diários', allowedRoles: ['PROFESSOR'] },

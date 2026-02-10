@@ -1,38 +1,40 @@
-import { useState, useMemo } from 'react';
-import { MOCK_STUDENTS } from '../../../../constants';
+import { useState, useEffect, useMemo } from 'react';
+import { apiClient } from '../../../services/apiClient';
 
 export const useDiaries = () => {
   const [selectedClass, setSelectedClass] = useState(null);
-  const [attendance, setAttendance] = useState({});
-  const [qtdAulas, setQtdAulas] = useState(1); // Controla se é aula simples, dupla, etc.
+  const [selectedBimestre, setSelectedBimestre] = useState(1);
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(false);
 
+  // Estrutura de turnos para sua tabela Turma
   const turmasPorTurno = [
     { turno: 'Manhã', salas: ['1º Ano A', '1º Ano B'] },
     { turno: 'Tarde', salas: ['1º Ano C', '1º Ano D'] },
     { turno: 'Noite', salas: ['1º Ano E', '1º Ano F'] }
   ];
 
-  const classStudents = useMemo(() => {
-    return MOCK_STUDENTS.filter(s => s.grade === selectedClass);
+  useEffect(() => {
+    const fetchStudents = async () => {
+      if (!selectedClass) return;
+      try {
+        setLoading(true);
+        const data = await apiClient(`/alunos/turma/${selectedClass}`);
+        setStudents(data || []);
+      } catch (err) {
+        setStudents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudents();
   }, [selectedClass]);
 
-  const toggleAttendance = (studentId) => {
-    setAttendance(prev => ({ 
-      ...prev, 
-      // Se já tinha falta, zera. Se não, aplica a quantidade de aulas do dia.
-      [studentId]: prev[studentId] ? 0 : qtdAulas 
-    }));
-  };
-
   return {
-    selectedClass,
-    setSelectedClass,
-    attendance,
-    setAttendance,
-    toggleAttendance,
-    turmasPorTurno,
-    classStudents,
-    qtdAulas,
-    setQtdAulas
+    selectedClass, setSelectedClass,
+    selectedBimestre, setSelectedBimestre,
+    turmasPorTurno, students,
+    bimestres: [1, 2, 3, 4],
+    loading
   };
 };

@@ -1,30 +1,76 @@
-import { useState, useMemo } from 'react';
-import { MOCK_STUDENTS } from '../../../../constants';
+import { useState, useEffect, useCallback } from 'react';
+import { apiClient } from '../../../services/apiClient';
 
-export const useGrading = () => {
-  const [selectedClass, setSelectedClass] = useState(null);
-  const [selectedBimestre, setSelectedBimestre] = useState(1);
+export const useGrading = (selectedClass, selectedSubject, selectedBimestre) => {
+  // Inicializamos com um array vazio para o .map() da View não quebrar
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Estrutura organizada por turnos
-  const turmasPorTurno = [
-    { turno: 'Manhã', salas: ['1º Ano A', '1º Ano B'] },
-    { turno: 'Tarde', salas: ['1º Ano C', '1º Ano D'] },
-    { turno: 'Noite', salas: ['1º Ano E', '1º Ano F'] }
-  ];
+  // 1. Busca os alunos e as notas atuais da turma selecionada
+  const fetchGradingData = useCallback(async () => {
+    if (!selectedClass || !selectedSubject) return;
 
-  const bimestres = [1, 2, 3, 4];
+    try {
+      setLoading(true);
+      setError(null);
+      // Endpoint que retorna alunos com as notas do bimestre selecionado
+      const data = await apiClient(
+        `/notas/turma/${selectedClass}/disciplina/${selectedSubject}?bimestre=${selectedBimestre}`
+      );
+      setStudents(data || []);
+    } catch (err) {
+      console.error("Erro ao carregar notas:", err);
+      setError("Não foi possível carregar a lista de notas.");
+      setStudents([]); // Mantém array vazio em caso de erro
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedClass, selectedSubject, selectedBimestre]);
 
-  const students = useMemo(() => {
-    return MOCK_STUDENTS.filter(s => s.grade === selectedClass);
-  }, [selectedClass]);
+  useEffect(() => {
+    fetchGradingData();
+  }, [fetchGradingData]);
+
+  // 2. Função para atualizar uma nota localmente no estado (antes de salvar)
+  const updateLocalGrade = (studentId, field, value) => {
+    setStudents(prev => prev.map(student => {
+      if (student.id === studentId) {
+        return { ...student, [field]: value };
+      }
+      return student;
+    }));
+  };
+
+  // 3. Função para salvar tudo no Banco de Dados (Spring Boot)
+  const saveGrades = async () => {
+    try {
+      setIsSaving(true);
+      // Envia a lista completa de notas para o teu NotasController
+      await apiClient('/notas/bulk-update', {
+        method: 'POST',
+        body: JSON.stringify({
+          disciplinaId: selectedSubject,
+          bimestre: selectedBimestre,
+          notas: students
+        })
+      });
+      alert("Notas guardadas com sucesso!");
+    } catch (err) {
+      alert("Erro ao guardar notas. Verifique a ligação com o servidor.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return {
-    selectedClass,
-    setSelectedClass,
-    selectedBimestre,
-    setSelectedBimestre,
-    turmasPorTurno,
-    bimestres,
-    students
+    students,
+    loading,
+    error,
+    isSaving,
+    updateLocalGrade,
+    saveGrades,
+    refresh: fetchGradingData
   };
 };

@@ -11,12 +11,12 @@ export const StudentDashboard = ({ user, stats }) => (
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <StatCard title="Matérias em Alerta" value="2" icon={AlertTriangle} color="bg-red-500 text-red-500" trend="Nota abaixo de 7.0" />
-      <StatCard 
-        title="Faltas Restantes" 
-        value={stats.faltasRestantes} 
-        icon={Clock} 
-        color={stats.nivelRiscoFalta === 'alto' ? "bg-orange-500 text-orange-500" : "bg-indigo-500 text-indigo-500"} 
-        trend={`Você já possui ${stats.faltasAtuais} faltas`} 
+      <StatCard
+        title="Faltas Restantes"
+        value={stats.faltasRestantes}
+        icon={Clock}
+        color={stats.nivelRiscoFalta === 'alto' ? "bg-orange-500 text-orange-500" : "bg-indigo-500 text-indigo-500"}
+        trend={`Você já possui ${stats.faltasAtuais} faltas`}
       />
     </div>
 

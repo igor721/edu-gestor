@@ -1,8 +1,8 @@
-export const Gender = Object.freeze({
-  Male: 'Masculino',
-  Female: 'Feminino',
-  Other: 'Outro'
-});
+// export const Gender = Object.freeze({
+//   Male: 'Masculino',
+//   Female: 'Feminino',
+//   Other: 'Outro'
+// });
 
 export const PAGES = {
   HOME: '/',

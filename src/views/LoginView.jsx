@@ -34,7 +34,7 @@ export const LoginView = ({ onLogin }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  placeholder="ex: diretor@escola.com"
+                  placeholder="Seu email"
                   required
                 />
               </div>
@@ -74,15 +74,6 @@ export const LoginView = ({ onLogin }) => {
               {!loading && <ArrowRight className="w-4 h-4" />}
             </button>
           </form>
-
-          {/* Dica de Credenciais (Pode ser removida depois do desenvolvimento) */}
-          <div className="mt-8 pt-6 border-t border-gray-100">
-            <p className="text-xs text-center text-gray-500 mb-4 uppercase font-bold tracking-widest">Acesso de Teste</p>
-            <div className="grid grid-cols-1 gap-2 text-[10px] text-gray-600 bg-gray-50 p-3 rounded-lg font-mono">
-              <div className="flex justify-between"><span>prof@escola.com</span> <span>123</span></div>
-              <div className="flex justify-between"><span>aluno@escola.com</span> <span>123</span></div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

@@ -1,28 +1,37 @@
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { apiClient } from '../../../services/apiClient';
 
 export const useAttendance = (user) => {
-  // Dados que virão da API no futuro
-  const resumoFrequencia = useMemo(() => [
-    { materia: 'Português', total: 60, faltas: 4, presenca: 93 },
-    { materia: 'Matemática', total: 60, faltas: 8, presenca: 86 },
-    { materia: 'História', total: 40, faltas: 2, presenca: 95 },
-    { materia: 'Ciências', total: 40, faltas: 6, presenca: 85 },
-  ], []);
+  const [resumoFrequencia, setResumoFrequencia] = useState([]); // Array vazio evita tela branca
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchAttendance = async () => {
+    if (!user?.id) return;
+    try {
+      setLoading(true);
+      const data = await apiClient(`/attendance/${user.id}`);
+      setResumoFrequencia(data || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchAttendance(); }, [user?.id]);
 
   const statsGerais = useMemo(() => {
-    // Cálculo simples da média de presença
-    const somaPresenca = resumoFrequencia.reduce((acc, item) => acc + item.presenca, 0);
-    const media = (somaPresenca / resumoFrequencia.length).toFixed(1);
-    
+    const totalItens = resumoFrequencia?.length || 0;
+    if (totalItens === 0) return { presencaGeral: "0.0", situacao: "---" };
+
+    const soma = resumoFrequencia.reduce((acc, item) => acc + (item.presenca || 0), 0);
+    const media = (soma / totalItens).toFixed(1);
     return {
       presencaGeral: media,
-      limiteLegal: '25%',
       situacao: media >= 75 ? 'Regular' : 'Risco'
     };
   }, [resumoFrequencia]);
 
-  return {
-    resumoFrequencia,
-    statsGerais
-  };
+  return { resumoFrequencia, statsGerais, loading, error };
 };

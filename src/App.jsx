@@ -11,27 +11,29 @@ import { ScheduleView } from './views/alunos/ScheduleView';
 import { DiariesView } from './views/professor/DiariesView';
 import { GradingView } from './views/professor/GradingView';
 
-// O segredo está aqui: adicione "export default" antes da função
 export default function App() {
   const [user, setUser] = useState(null);
 
-  if (!user) {
-    return <LoginView onLogin={setUser} />;
-  }
-
   return (
     <BrowserRouter>
-      <Layout user={user} onLogout={() => setUser(null)}>
+      {!user ? (
         <Routes>
-          <Route path="/" element={<Dashboard user={user} />} />
-          <Route path="/grades" element={<GradesView user={user} />} />
-          <Route path="/attendance" element={<AttendanceView user={user} />} />
-          <Route path="/schedule" element={<ScheduleView />} />
-          <Route path="/diaries" element={<DiariesView />} />
-          <Route path="/grading" element={<GradingView />} />
-          <Route path="*" element={<Navigate to="/" />} />
+          {/* Se não houver usuário, qualquer rota renderiza o Login */}
+          <Route path="*" element={<LoginView onLogin={setUser} />} />
         </Routes>
-      </Layout>
+      ) : (
+        <Layout user={user} onLogout={() => setUser(null)}>
+          <Routes>
+            <Route path="/" element={<Dashboard user={user} />} />
+            <Route path="/grades" element={<GradesView user={user} />} />
+            <Route path="/attendance" element={<AttendanceView user={user} />} />
+            <Route path="/schedule" element={<ScheduleView />} />
+            <Route path="/diaries" element={<DiariesView />} />
+            <Route path="/grading" element={<GradingView />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </Layout>
+      )}
     </BrowserRouter>
   );
 }
