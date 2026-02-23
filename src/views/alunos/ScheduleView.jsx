@@ -1,20 +1,23 @@
 import React from 'react';
 import { Clock } from 'lucide-react';
 import { useSchedule } from './hooks/useSchedule';
+import { Header } from '../../components/Header';
 
 export const ScheduleView = () => {
   const { dias, gradeHoraria } = useSchedule();
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <Clock className="text-indigo-600" /> Horário de Aula
-        </h2>
-        <span className="text-xs font-bold text-gray-400 uppercase bg-gray-100 px-3 py-1 rounded-full">
-          Ano Letivo 2026
-        </span>
-      </div>
+      <Header
+        title="Horário de Aula"
+        subtitle="Veja o horário de suas aulas"
+        icon={Clock}
+        action={
+          <span className="text-xs font-bold text-gray-400 uppercase bg-gray-100 px-3 py-1 rounded-full">
+            Ano Letivo 2026
+          </span>
+        }
+      />
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
@@ -53,10 +56,10 @@ export const ScheduleView = () => {
           </table>
         </div>
       </div>
-      
+
       <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
         <p className="text-xs text-indigo-700 leading-relaxed">
-          <strong>Nota:</strong> O intervalo para o lanche ocorre entre <strong>09:30</strong> e <strong>09:50</strong>. 
+          <strong>Nota:</strong> O intervalo para o lanche ocorre entre <strong>09:30</strong> e <strong>09:50</strong>.
           Mudanças pontuais no horário serão notificadas via painel de avisos.
         </p>
       </div>

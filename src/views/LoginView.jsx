@@ -2,17 +2,20 @@ import React from 'react';
 import { School, Lock, Mail, ArrowRight } from 'lucide-react';
 import { useLogin } from '../hooks/UseLogin';
 
-export const LoginView = ({ onLogin }) => {
+export const LoginView = () => {
+  // Note que removemos o onLogin das props e do hook
   const { 
     email, setEmail, 
     password, setPassword, 
     error, loading, 
     handleLogin 
-  } = useLogin(onLogin);
+  } = useLogin();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-white flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+        
+        {/* Cabeçalho */}
         <div className="p-8 bg-indigo-600 text-center">
           <div className="inline-flex p-3 bg-white/20 rounded-xl mb-4 backdrop-blur-sm">
             <School className="w-10 h-10 text-white" />
@@ -23,6 +26,8 @@ export const LoginView = ({ onLogin }) => {
 
         <div className="p-8">
           <form onSubmit={handleLogin} className="space-y-6">
+            
+            {/* Input Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Email Acadêmico</label>
               <div className="relative">
@@ -40,6 +45,7 @@ export const LoginView = ({ onLogin }) => {
               </div>
             </div>
 
+            {/* Input Senha */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Senha</label>
               <div className="relative">
@@ -57,12 +63,14 @@ export const LoginView = ({ onLogin }) => {
               </div>
             </div>
 
+            {/* Alerta de Erro */}
             {error && (
-              <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100 animate-shake">
+              <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100 animate-bounce">
                 {error}
               </div>
             )}
 
+            {/* Botão Submit */}
             <button
               type="submit"
               disabled={loading}

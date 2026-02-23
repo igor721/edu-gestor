@@ -1,38 +1,43 @@
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
-export const useLogin = (onLogin) => {
+export const useLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Pegamos a função login de dentro do nosso Contexto Global
+  const { login } = useAuth();
+
   const handleLogin = async (e) => {
-    // ESSA LINHA É A MAIS IMPORTANTE: Impede o "?" na URL e o refresh
-    e.preventDefault(); 
-    
+    e.preventDefault();
     setLoading(true);
     setError(null);
 
-    // Simulação de delay para teste
-    setTimeout(() => {
-      if (email === 'teste@teste.com' && password === '123') {
-        onLogin({
-          id: 1,
-          name: 'Luan Gabriel',
-          role: 'ALUNO', 
-          email: email
-        });
+    try {
+      const result = await login(email, password);
+
+      // Verificamos se result existe antes de acessar .success
+      if (result && result.success) {
+         console.log("Logado!");
       } else {
-        setError("Email ou senha incorretos.");
+        setError(result?.error || 'Erro ao conectar ao servidor');
+        setLoading(false);
       }
+    } catch (err) {
+      setError("Erro inesperado");
       setLoading(false);
-    }, 800);
+    }
   };
 
   return {
-    email, setEmail,
-    password, setPassword,
-    error, loading,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    error,
+    loading,
     handleLogin
   };
 };

@@ -1,20 +1,23 @@
 import React from 'react';
 import { FileText, Download, AlertCircle } from 'lucide-react';
 import { useGrades } from './hooks/useGrades';
+import { Header } from '../../components/Header';
 
 export const GradesView = ({ user }) => {
   const { disciplinas, calcularMediaParcial, mediaAprovacao } = useGrades(user);
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <FileText className="text-indigo-600" /> Meu Boletim
-        </h2>
-        <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-md shadow-indigo-200">
-          <Download className="w-4 h-4" /> Gerar PDF
-        </button>
-      </div>
+      <Header
+        title="Meu Boletim"
+        subtitle= "Acompanhe todas suas notas"
+        icon={FileText}
+        action={
+          <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-md shadow-indigo-200">
+            <Download className="w-4 h-4" /> Gerar PDF
+          </button>
+        }
+      />
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
@@ -32,14 +35,14 @@ export const GradesView = ({ user }) => {
             <tbody className="divide-y divide-gray-50">
               {disciplinas.map((disc, index) => {
                 const media = calcularMediaParcial(disc.notas);
-                
+
                 return (
                   <tr key={index} className="hover:bg-gray-50/50 transition-colors">
                     <td className="p-4">
                       <p className="font-semibold text-gray-800">{disc.nome}</p>
                       <p className="text-xs text-gray-400">{disc.faltas} faltas acumuladas</p>
                     </td>
-                    
+
                     {disc.notas.map((nota, i) => (
                       <td key={i} className="p-4 text-center font-medium">
                         {nota > 0 ? (

@@ -1,17 +1,18 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { apiClient } from '../../../services/apiClient';
 
 export const useDiaries = () => {
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedBimestre, setSelectedBimestre] = useState(1);
   const [students, setStudents] = useState([]);
+  const [attendance, setAttendance] = useState({}); // Inicializado como objeto vazio
+  const [qtdAulas, setQtdAulas] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // Estrutura de turnos para sua tabela Turma
   const turmasPorTurno = [
-    { turno: 'Manhã', salas: ['1º Ano A', '1º Ano B'] },
-    { turno: 'Tarde', salas: ['1º Ano C', '1º Ano D'] },
-    { turno: 'Noite', salas: ['1º Ano E', '1º Ano F'] }
+    { turno: 'Manhã', salas: [{ id: 1, nome: '1º Ano A' }, { id: 2, nome: '1º Ano B' }] },
+    { turno: 'Tarde', salas: [] },
+    { turno: 'Noite', salas: [] }
   ];
 
   useEffect(() => {
@@ -19,8 +20,15 @@ export const useDiaries = () => {
       if (!selectedClass) return;
       try {
         setLoading(true);
-        const data = await apiClient(`/alunos/turma/${selectedClass}`);
+        const data = await apiClient(`/api/alunos/turma/${selectedClass}`);
         setStudents(data || []);
+
+        // Inicializa o estado de presença para cada aluno como 0 (Presente)
+        const initialAttendance = {};
+        (data || []).forEach(student => {
+          initialAttendance[student.id] = 0;
+        });
+        setAttendance(initialAttendance);
       } catch (err) {
         setStudents([]);
       } finally {
@@ -30,11 +38,45 @@ export const useDiaries = () => {
     fetchStudents();
   }, [selectedClass]);
 
+  const toggleAttendance = (studentId) => {
+    setAttendance(prev => ({
+      ...prev,
+      // Se já tiver falta, volta a 0. Se não, recebe o valor de qtdAulas atual.
+      [studentId]: (prev && prev[studentId] > 0) ? 0 : qtdAulas
+    }));
+  };
+
+  const saveAttendance = async () => {
+    try {
+      setLoading(true);
+      const payload = Object.keys(attendance).map(studentId => ({
+        aluno: { id: Number(studentId) },
+        disciplina: { id: 1 },
+        data: new Date().toISOString().split('T')[0],
+        status: attendance[studentId] > 0 ? 'FALTA' : 'PRESENTE',
+        // Esta linha garante que o valor 2 (ou 1) chegue ao Java corretamente
+        quantidade_faltas: Number(attendance[studentId])
+      }));
+
+      await apiClient('/api/presencas/bulk-save', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      alert("Chamada finalizada com sucesso!");
+    } catch (err) {
+      alert("Erro ao salvar chamada.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return {
     selectedClass, setSelectedClass,
     selectedBimestre, setSelectedBimestre,
-    turmasPorTurno, students,
-    bimestres: [1, 2, 3, 4],
-    loading
+    students, attendance,
+    toggleAttendance, qtdAulas, setQtdAulas,
+    turmasPorTurno, loading, saveAttendance
   };
 };

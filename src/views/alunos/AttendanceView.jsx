@@ -1,15 +1,18 @@
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
 import { useAttendance } from './hooks/useAttendance';
+import { Header } from '../../components/Header';
 
 export const AttendanceView = ({ user }) => {
   const { resumoFrequencia, statsGerais } = useAttendance(user);
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-        <CheckCircle className="text-emerald-500" /> Frequência Detalhada
-      </h2>
+      <Header
+        title="Frequência Detalhada"
+        subtitle= "Acompanhe sua frequência completa"
+        icon={CheckCircle}
+      />
 
       {/* Cards de Resumo de Frequência */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

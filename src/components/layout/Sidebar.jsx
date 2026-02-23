@@ -45,11 +45,15 @@ export const Sidebar = ({ user, onLogout, isOpen, onClose }) => {
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center border-2 border-indigo-500/20 shadow-inner">
             <span className="font-bold text-white text-sm">
-              {user.name ? user.name.charAt(0) : '?'}
+              {/* MUDADO AQUI: user.nome */}
+              {user.nome ? user.nome.charAt(0) : '?'}
             </span>
           </div>
           <div className="overflow-hidden">
-            <p className="text-sm font-medium text-white truncate" title={user.name}>{user.name}</p>
+            {/* MUDADO AQUI: user.nome */}
+            <p className="text-sm font-medium text-white truncate" title={user.nome}>
+              {user.nome}
+            </p>
             <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">
               {user.role}
             </p>

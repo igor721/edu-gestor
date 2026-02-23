@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { Menu } from 'lucide-react';
 import { Sidebar } from './Sidebar';
+import { Outlet } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext'; // Importando o hook de autenticação
 
-export const Layout = ({ children, user, onLogout }) => {
+export const Layout = ({ user }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Pegamos a função de logout diretamente do contexto global
+  const { logout } = useAuth();
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -15,8 +20,13 @@ export const Layout = ({ children, user, onLogout }) => {
         />
       )}
 
-      {/* Sidebar */}
-      <Sidebar user={user} onLogout={onLogout} isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}/>
+      {/* Sidebar - Agora passa o logout vindo do contexto */}
+      <Sidebar 
+        user={user} 
+        onLogout={logout} 
+        isOpen={isMobileMenuOpen} 
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
 
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Header Mobile */}
@@ -27,10 +37,11 @@ export const Layout = ({ children, user, onLogout }) => {
           <span className="font-semibold text-gray-700">EduManager Pro</span>
         </header>
 
-        {/* Área de Conteúdo */}
+        {/* Área de Conteúdo Dinâmico */}
         <div className="flex-1 overflow-auto p-6 md:p-8">
           <div className="max-w-7xl mx-auto">
-            {children}
+            {/* O Outlet renderiza as rotas filhas do App.jsx */}
+            <Outlet /> 
           </div>
         </div>
       </main>
