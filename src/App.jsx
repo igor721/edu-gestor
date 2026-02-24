@@ -80,7 +80,7 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={['ALUNO']} />}>
             <Route path="/grades" element={<GradesView user={user} />} />
             <Route path="/attendance" element={<AttendanceView user={user} />} />
-            <Route path="/schedule" element={<ScheduleView />} />
+            <Route path="/schedule" element={<ScheduleView user={user} />} />
           </Route>
 
         </Route>

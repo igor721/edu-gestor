@@ -10,7 +10,6 @@ if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <React.StrictMode>
-      {/* O BrowserRouter precisa ser o pai de todos aqui */}
       <BrowserRouter>
         <AuthProvider>
           <App />
